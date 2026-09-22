@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<psalm errorLevel="1" resolveFromConfigFile="true"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="https://getpsalm.org/schema/config">
+  <projectFiles>
+    <directory name="admi"/>
+    <directory name="chec"/>
+    <directory name="registr_pers"/>
+    <directory name="registr_combis"/>
+    <directory name="src"/>
+    <file name="reporte.php"/>
+    <ignoreFiles>
+      <directory name="vendor"/>
+      <directory name="fpdf185"/>
+    </ignoreFiles>
+  </projectFiles>
+  <issueHandlers>
+    <MixedAssignment errorLevel="error"/>
+    <MixedArgument errorLevel="error"/>
+    <MixedReturnStatement errorLevel="error"/>
+    <PossiblyUnusedMethod errorLevel="info"/>
+  </issueHandlers>
+</psalm>

@@ -1,0 +1,18 @@
+parameters:
+  level: 9
+  paths:
+    - admi
+    - chec
+    - registr_pers
+    - registr_combis
+    - reporte.php
+    - src
+    - tests
+  excludePaths:
+    - fpdf185/*
+    - vendor/*
+  phpVersion: 80100
+  checkMissingIterableValueType: true
+  checkGenericClassInNonGenericObjectType: true
+  treatPhpDocTypesAsCertain: false
+  reportMaybes: true

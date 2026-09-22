@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+  bootstrap="vendor/autoload.php" colors="true" failOnRisky="true"
+  failOnWarning="true" beStrictAboutOutputDuringTests="true">
+  <testsuites>
+    <testsuite name="unit"><directory>tests/Unit</directory></testsuite>
+    <testsuite name="integration"><directory>tests/Integration</directory></testsuite>
+  </testsuites>
+  <coverage>
+    <include>
+      <directory suffix=".php">admi</directory>
+      <directory suffix=".php">chec</directory>
+      <directory suffix=".php">registr_pers</directory>
+      <directory suffix=".php">registr_combis</directory>
+      <directory suffix=".php">src</directory>
+      <file>reporte.php</file>
+    </include>
+    <exclude>
+      <directory>fpdf185</directory>
+      <directory>vendor</directory>
+    </exclude>
+    <report>
+      <html outputDirectory="build/coverage"/>
+      <text outputFile="php://stdout"/>
+    </report>
+  </coverage>
+</phpunit>

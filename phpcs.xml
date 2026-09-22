@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="tranzit-pure-php">
+  <description>PSR-12 estricto para Tranzit</description>
+  <file>admi</file>
+  <file>chec</file>
+  <file>registr_pers</file>
+  <file>registr_combis</file>
+  <file>reporte.php</file>
+  <file>src</file>
+  <file>tests</file>
+  <exclude-pattern>fpdf185/*</exclude-pattern>
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <rule ref="PSR12"/>
+  <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+  <rule ref="Generic.Files.LineLength">
+    <properties>
+      <property name="lineLimit" value="120"/>
+    </properties>
+  </rule>
+</ruleset>

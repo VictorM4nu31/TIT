@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="agregar.php" class="form" method="POST">
+        <label for="select1">Ruta:</label>
+        <select id="select1" name="ruta" class="select">
+            <option value="option1"></option>
+            <option value="option2">TEPHE-IXMI</option>
+        </select>
+        <br>
+        <label for="hr_sal">Hora de salida:</label>
+        <input type="time" id="time1" name="hr_sal" class="time">
+        <br>
+        <label for="fecha">Fecha</label>
+        <input type="date" id="date" name="fecha" class="date">
+        <br>
+        <label for="id_transporte">ID de Transporte:</label>
+        <input type="text" id="id_transporte" name="id_transporte">
+        <br>
+        <label for="id_conductor">ID de Conductor:</label>
+        <input type="text" id="id_conductor" name="id_conductor">
+        <br>
+        <label for="id_checador">ID de Checador:</label>
+        <input type="text" id="id_checador" name="id_checador">
+        <br>
+        <input class="enviar" type="submit" value="Enviar">
+    </form>
+
+    <form action="editar.php" class="form" method="POST">
+        <label for="select1">Ruta:</label>
+        <select id="select1" name="ruta" class="select">
+            <option value="option1"></option>
+            <option value="option2">TEPHE-IXMI</option>
+        </select>
+        <br>
+        <label for="time1">Hora de entrada:</label>
+        <input type="time" id="time1" name="hor_entr" class="time">
+        <br>
+        <label for="fecha1">Fecha</label>
+        <input type="date" id="date" name="fecha" class="date">
+        <br>
+        <label for="id_transporte">ID de Transporte:</label>
+        <input type="text" id="id_transporte" name="id_transporte">
+        <br>
+        <label for="id_checador">ID de Checador:</label>
+        <input type="text" id="id_checador" name="id_checador">
+        <br>
+        <input class="enviar" type="submit" value="Enviar">
+    </form>
+</body>
+
+</html>
