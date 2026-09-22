@@ -1,39 +1,66 @@
 <?php
-// Establecer la conexión con la base de datos
-$servername = "localhost";
-$database = "tit_bd2";
-$username = "root";
-$password = "";
 
-$conn=mysqli_connect("$servername","$username","$password","$database");
+declare(strict_types=1);
 
-// Obtener los datos del formulario
-$id_transporte = $_POST['id_transporte'];
-$ruta = $_POST['ruta'];
-$hr_sal = $_POST['hr_sal'];
-$fecha = $_POST['fecha'];
-$id_conductor = $_POST['id_conductor'];
-$id_checador = $_POST['id_checador'];
+require_once __DIR__ . '/../vendor/autoload.php';
 
-// Insertar los datos en la tabla
-$sql= "INSERT INTO hora_sal_tb(id_trans, ruta, hr_sal, fecha, id_conductor, id_checador) VALUES('$id_transporte','$ruta', '$hr_sal','$fecha','$id_conductor','$id_checador')";
+use App\Infrastructure\Database\PdoFactory;
 
-if(mysqli_query($conn, $sql)){
-	
-    echo   '<script>
-                alert("registro exitoso");
-                window.location = "horario_combi.html"
-            </script>';
-        exit;
-}else{
-    echo '
-            <script>
-                alert("vuelve a intentarlo");
-                window.location = "horario_combi.html"
-            </script>
-            ';
-            exit;
+$pdo = PdoFactory::create();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo '<script>alert("Metodo no permitido");window.location="horario_combi.html"</script>';
+    exit;
 }
-// Cerrar la conexión
-mysqli_close($conn);
-?>
+
+$idTransporte = trim((string) ($_POST['id_transporte'] ?? ''));
+$ruta = trim((string) ($_POST['ruta'] ?? ''));
+$hrSal = trim((string) ($_POST['hr_sal'] ?? ''));
+$fecha = trim((string) ($_POST['fecha'] ?? ''));
+$idConductor = trim((string) ($_POST['id_conductor'] ?? ''));
+$idChecador = trim((string) ($_POST['id_checador'] ?? ''));
+
+if (
+    $idTransporte === '' || $ruta === '' || $hrSal === ''
+    || $fecha === '' || $idConductor === '' || $idChecador === ''
+) {
+    echo '<script>alert("Datos incompletos");window.location="horario_combi.html"</script>';
+    exit;
+}
+
+if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $hrSal)) {
+    echo '<script>alert("Hora invalida");window.location="horario_combi.html"</script>';
+    exit;
+}
+
+$dateObj = DateTimeImmutable::createFromFormat('Y-m-d', $fecha);
+if ($dateObj === false || $dateObj->format('Y-m-d') !== $fecha) {
+    echo '<script>alert("Fecha invalida");window.location="horario_combi.html"</script>';
+    exit;
+}
+
+$stmt = $pdo->prepare(
+    'INSERT INTO hora_sal_tb (id_trans, ruta, hr_sal, fecha, id_conductor, id_checador) '
+    . 'VALUES (:id_trans, :ruta, :hr_sal, :fecha, :id_conductor, :id_checador)',
+);
+
+try {
+    $ok = $stmt->execute([
+        'id_trans' => $idTransporte,
+        'ruta' => $ruta,
+        'hr_sal' => $hrSal,
+        'fecha' => $fecha,
+        'id_conductor' => $idConductor,
+        'id_checador' => $idChecador,
+    ]);
+} catch (PDOException $e) {
+    $ok = false;
+}
+
+if ($ok) {
+    echo '<script>alert("registro exitoso");window.location="horario_combi.html"</script>';
+    exit;
+}
+
+echo '<script>alert("vuelve a intentarlo");window.location="horario_combi.html"</script>';

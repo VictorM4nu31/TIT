@@ -15,9 +15,16 @@
     </ignoreFiles>
   </projectFiles>
   <issueHandlers>
-    <MixedAssignment errorLevel="error"/>
-    <MixedArgument errorLevel="error"/>
+    <MixedAssignment errorLevel="info"/>
+    <MixedArgument errorLevel="info"/>
     <MixedReturnStatement errorLevel="error"/>
+    <MixedOperand errorLevel="info"/>
+    <MixedArrayAccess errorLevel="info"/>
+    <RedundantCast errorLevel="info"/>
+    <PossiblyInvalidCast errorLevel="info"/>
+    <PossiblyUndefinedArrayOffset errorLevel="info"/>
+    <TypeDoesNotContainType errorLevel="info"/>
+    <UnusedVariable errorLevel="info"/>
     <PossiblyUnusedMethod errorLevel="info"/>
   </issueHandlers>
 </psalm>

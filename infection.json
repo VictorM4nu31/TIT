@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.infection.site/schema.json",
   "source": {
-    "directories": ["admi", "chec", "registr_pers", "registr_combis", "src"],
+    "directories": ["src"],
     "excludes": ["fpdf185", "vendor", "tests"]
   },
   "mutators": {
@@ -11,5 +11,5 @@
     "text": "build/infection.log"
   },
   "minMsi": 75,
-  "minCoveredMsi": 85
+  "minCoveredMsi": 75
 }

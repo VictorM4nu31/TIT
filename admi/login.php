@@ -1,26 +1,44 @@
 <?php
-include "conexion.php";
 
-// Obtener los datos del formulario
-$nombre = $_POST["nombre"];
-$contrasena = $_POST["contrasena"];
+declare(strict_types=1);
 
-// Consultar la tabla de usuarios
-$validarusu = mysqli_query($conn,"SELECT * FROM admin_tb WHERE nombre = '$nombre' AND contrasena = '$contrasena'");
+session_start();
 
-// Verificar si se encontró un usuario con los datos ingresados
+require_once __DIR__ . '/../vendor/autoload.php';
 
-if (mysqli_num_rows($validarusu) > 1)
-    {
-        header ("location: registr_pers/registro.html");
-        exit;
-    }else {
-        echo '
-            <script>
-                alert("el usuario no existe");
-                window.location = "administrador.html"
-            </script>
-            ';
-            exit;
+use App\Infrastructure\Database\PdoFactory;
+
+$pdo = PdoFactory::createForAdmin();
+
+$nombre = trim((string) ($_POST['nombre'] ?? ''));
+$contrasena = (string) ($_POST['contrasena'] ?? '');
+
+if ($nombre === '' || $contrasena === '') {
+    echo '<script>alert("Datos incompletos");window.location="administrador.html"</script>';
+    exit;
+}
+
+$stmt = $pdo->prepare('SELECT id, nombre, contrasena FROM admin_tb WHERE nombre = :nombre LIMIT 1');
+$stmt->execute(['nombre' => $nombre]);
+$row = $stmt->fetch();
+
+$authOk = false;
+if (\is_array($row) && isset($row['contrasena'])) {
+    $hash = (string) $row['contrasena'];
+    $info = password_get_info($hash);
+    if ($info['algo'] !== 0) {
+        $authOk = password_verify($contrasena, $hash);
+    } else {
+        $authOk = hash_equals($hash, $contrasena);
     }
-?>
+}
+
+if ($authOk) {
+    session_regenerate_id(true);
+    $_SESSION['nombre'] = $nombre;
+    $_SESSION['admin_id'] = \is_array($row) ? ($row['id'] ?? null) : null;
+    header('Location: ../registr_pers/registro.php');
+    exit;
+}
+
+echo '<script>alert("el usuario no existe o contraseña incorrecta");window.location="administrador.html"</script>';

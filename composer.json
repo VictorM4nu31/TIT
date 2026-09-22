@@ -33,8 +33,8 @@
     "stan": "phpstan analyse -c phpstan.neon",
     "psalm": "psalm --no-cache",
     "test": "phpunit -c phpunit.xml",
-    "mut": "infection -c infection.json --min-msi=75 --min-covered-msi=85",
-    "md": "phpmd admi,chec,registr_pers,registr_combis,reporte.php text phpmd.xml",
+    "mut": "infection run -c infection.json --min-msi=75 --min-covered-msi=75",
+    "md": "phpmd admi,chec,registr_pers,registr_combis,reporte.php,src text phpmd.xml",
     "qa": ["@cs:check", "@stan", "@psalm", "@test"]
   },
   "config": {

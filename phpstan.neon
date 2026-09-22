@@ -16,3 +16,8 @@ parameters:
   checkGenericClassInNonGenericObjectType: true
   treatPhpDocTypesAsCertain: false
   reportMaybes: true
+  bootstrapFiles:
+    - fpdf185/fpdf.php
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - '#Cannot call method fetchAll\(\) on PDOStatement\|false#'

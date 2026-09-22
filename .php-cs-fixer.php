@@ -22,6 +22,8 @@ return $config
       ->in(__DIR__ . '/chec')
       ->in(__DIR__ . '/registr_pers')
       ->in(__DIR__ . '/registr_combis')
+      ->in(__DIR__ . '/src')
+      ->in(__DIR__ . '/tests')
       ->append([__DIR__ . '/reporte.php'])
       ->exclude('fpdf185')
       ->exclude('vendor')

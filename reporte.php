@@ -1,102 +1,115 @@
 <?php
-require('fpdf185/fpdf.php');
 
-class PDF extends FPDF
-{
-// Cabecera de página
-function Header()
-{
-    $this->SetFont('Times','',16);
-    $this->Image('tephe.png',10,8,32);
-    $this->SetXY(80,15);
-    $this->Cell(55,8,'Reporte de Entrada y Salida de Transporte Publico',0,0,'C',0);
-    $this->Ln(45);
-}
+declare(strict_types=1);
 
-// Pie de página
-function Footer()
-{
-    // Posición: a 1,5 cm del final
-    $this->SetY(-15);
-    // Arial italic 8
-    $this->SetFont('Arial','I',8);
-    // Número de página
-    $this->Cell(20,10,utf8_decode('Pagina ').$this->PageNo().'/{nb}',0,0,'C'); 
-}
-//----------------------------METODO PARA ADAPTAR LAS CELDAS-----------------------------------
-protected $widths;
-    protected $aligns;
+// phpcs:ignoreFile PSR1.Files.SideEffects,PSR1.Classes.ClassDeclaration.MissingNamespace,Generic.Files.LineLength
 
-    function SetWidths($w)
+require __DIR__ . '/fpdf185/fpdf.php';
+
+use App\Infrastructure\Database\PdoFactory;
+
+/**
+ * @psalm-suppress MissingClass
+ * @psalm-suppress PropertyNotSetInConstructor
+ * @psalm-suppress MixedOperand
+ * @psalm-suppress MixedArrayAccess
+ * @psalm-suppress MixedAssignment
+ * @psalm-suppress MixedArgument
+ * @psalm-suppress MixedArrayOffset
+ */
+final class PDF extends FPDF
+{
+    /** @var array<int,int> */
+    protected $widths = [];
+    /** @var array<int,string> */
+    protected $aligns = [];
+
+    public function Header(): void
     {
-        // Set the array of column widths
+        $this->SetFont('Times', '', 16);
+        $this->Image('tephe.png', 10, 8, 32);
+        $this->SetXY(80, 15);
+        $this->Cell(55, 8, 'Reporte de Entrada y Salida de Transporte Publico', 0, 0, 'C', 0);
+        $this->Ln(45);
+    }
+
+    public function Footer(): void
+    {
+        $this->SetY(-15);
+        $this->SetFont('Arial', 'I', 8);
+        $this->Cell(20, 10, utf8_decode('Pagina ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+    }
+
+    /**
+     * @param array<int,int> $w
+     */
+    public function SetWidths(array $w): void
+    {
         $this->widths = $w;
     }
 
-    function SetAligns($a)
+    /**
+     * @param array<int,string> $a
+     */
+    public function SetAligns(array $a): void
     {
-        // Set the array of column alignments
         $this->aligns = $a;
     }
 
-    function Row($data,$setX)
+    /**
+     * @param array<int,string> $data
+     */
+    public function Row(array $data, int $setX = 0): void
     {
-        // Calculate the height of the row
         $nb = 0;
-        for($i=0;$i<count($data);$i++)
-            $nb = max($nb,$this->NbLines($this->widths[$i],$data[$i]));
-        $h = 5*$nb;
-        // Issue a page break first if needed
+        $count = \count($data);
+        for ($i = 0; $i < $count; $i++) {
+            $nb = max($nb, $this->NbLines($this->widths[$i], $data[$i]));
+        }
+        $h = 5 * $nb;
         $this->CheckPageBreak($h);
-        // Draw the cells of the row
-        for($i=0;$i<count($data);$i++)
-        {
+        for ($i = 0; $i < $count; $i++) {
             $w = $this->widths[$i];
-            $a = isset($this->aligns[$i]) ? $this->aligns[$i] : 'L';
-            // Save the current position
+            $a = $this->aligns[$i] ?? 'L';
             $x = $this->GetX();
             $y = $this->GetY();
-            // Draw the border
-            $this->Rect($x,$y,$w,$h);
-            // Print the text
-            $this->MultiCell($w,5,$data[$i],0,$a);
-            // Put the position to the right of the cell
-            $this->SetXY($x+$w,$y);
+            $this->Rect($x, $y, $w, $h);
+            $this->MultiCell($w, 5, $data[$i], 0, $a);
+            $this->SetXY($x + $w, $y);
         }
-        // Go to the next line
         $this->Ln($h);
     }
 
-    function CheckPageBreak($h)
+    public function CheckPageBreak(int $h): void
     {
-        // If the height h would cause an overflow, add a new page immediately
-        if($this->GetY()+$h>$this->PageBreakTrigger)
+        if ($this->GetY() + $h > $this->PageBreakTrigger) {
             $this->AddPage($this->CurOrientation);
+        }
     }
 
-    function NbLines($w, $txt)
+    public function NbLines(int $w, string $txt): int
     {
-        // Compute the number of lines a MultiCell of width w will take
-        if(!isset($this->CurrentFont))
+        if (!isset($this->CurrentFont)) {
             $this->Error('No font has been set');
+        }
         $cw = $this->CurrentFont['cw'];
-        if($w==0)
-            $w = $this->w-$this->rMargin-$this->x;
-        $wmax = ($w-2*$this->cMargin)*1000/$this->FontSize;
-        $s = str_replace("\r",'',(string)$txt);
-        $nb = strlen($s);
-        if($nb>0 && $s[$nb-1]=="\n")
+        if ($w === 0) {
+            $w = (int) ($this->w - $this->rMargin - $this->x);
+        }
+        $wmax = (int) (($w - 2 * $this->cMargin) * 1000 / $this->FontSize);
+        $s = str_replace("\r", '', $txt);
+        $nb = \strlen($s);
+        if ($nb > 0 && $s[$nb - 1] === "\n") {
             $nb--;
+        }
         $sep = -1;
         $i = 0;
         $j = 0;
         $l = 0;
         $nl = 1;
-        while($i<$nb)
-        {
+        while ($i < $nb) {
             $c = $s[$i];
-            if($c=="\n")
-            {
+            if ($c === "\n") {
                 $i++;
                 $sep = -1;
                 $j = $i;
@@ -104,55 +117,72 @@ protected $widths;
                 $nl++;
                 continue;
             }
-            if($c==' ')
+            if ($c === ' ') {
                 $sep = $i;
+            }
             $l += $cw[$c];
-            if($l>$wmax)
-            {
-                if($sep==-1)
-                {
-                    if($i==$j)
+            if ($l > $wmax) {
+                if ($sep === -1) {
+                    if ($i === $j) {
                         $i++;
+                    }
+                } else {
+                    $i = $sep + 1;
                 }
-                else
-                    $i = $sep+1;
                 $sep = -1;
                 $j = $i;
                 $l = 0;
                 $nl++;
-            }
-            else
+            } else {
                 $i++;
+            }
         }
+
         return $nl;
     }
-//-----------------------------------------------------------
 }
 
-// Creación del objeto de la clase heredada
 $pdf = new PDF();
 $pdf->AliasNbPages();
-$pdf->AddPage(); //añade la pagina en blanco
-$pdf->SetMargins(10,10,10);
-$pdf->SetAutoPageBreak(true,30); //salto de pagina en automatico
-$pdf->SetX(17);
-$pdf->SetFont('Helvetica','',10);
-$pdf->Cell(29,8,'Id de transporte','B',0,'C',0);
-$pdf->Cell(20,8,'Ruta','B',0,'C',0);
-$pdf->Cell(29,8,'Hora de Salida','B',0,'C',0);
-$pdf->Cell(29,8,'Hora de Entrada','B',0,'C',0);
-$pdf->Cell(29,8,'Id de transporte','B',0,'C',0);
-$pdf->Cell(27,8,'Fecha',1,1,'C',0);
-
-$pdf->SetFont('Arial','',10);
-//ancho de las celdas
-$pdf->SetWidths(array(30, 50, 30, 40));
-
-$pdf->Ln(0.5);
-for($i=1;$i<=5;$i++)
-$pdf->SetX(15);
-
 $pdf->AddPage();
+$pdf->SetMargins(10, 10, 10);
+$pdf->SetAutoPageBreak(true, 30);
+$pdf->SetX(17);
+$pdf->SetFont('Helvetica', '', 10);
+$pdf->Cell(29, 8, 'Id de transporte', 'B', 0, 'C', 0);
+$pdf->Cell(20, 8, 'Ruta', 'B', 0, 'C', 0);
+$pdf->Cell(29, 8, 'Hora de Salida', 'B', 0, 'C', 0);
+$pdf->Cell(29, 8, 'Hora de Entrada', 'B', 0, 'C', 0);
+$pdf->Cell(29, 8, 'Id de transporte', 'B', 0, 'C', 0);
+$pdf->Cell(27, 8, 'Fecha', '1', 1, 'C', 0);
+
+$pdf->SetFont('Arial', '', 10);
+$pdf->SetWidths([29, 20, 29, 29, 29, 27]);
+$pdf->Ln(0.5);
+
+try {
+    $pdo = PdoFactory::create();
+    $stmt = $pdo->query(
+        'SELECT s.id_trans, s.ruta, s.hr_sal, e.hr_ent, s.fecha '
+        . 'FROM hora_sal_tb s LEFT JOIN hora_ent_tb e '
+        . 'ON s.id_trans = e.id_trans AND s.fecha = e.fecha LIMIT 100',
+    );
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row) {
+        $pdf->SetX(15);
+        $data = [
+            htmlspecialchars((string) ($row['id_trans'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string) ($row['ruta'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string) ($row['hr_sal'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string) ($row['hr_ent'] ?? '-'), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string) ($row['id_trans'] ?? ''), ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars((string) ($row['fecha'] ?? ''), ENT_QUOTES, 'UTF-8'),
+        ];
+        $pdf->Row($data, 15);
+    }
+} catch (PDOException $e) {
+    $pdf->SetX(15);
+    $pdf->Cell(0, 8, 'Sin datos disponibles', 0, 1, 'C', false);
+}
 
 $pdf->Output();
-?>

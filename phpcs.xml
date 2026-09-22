@@ -10,6 +10,8 @@
   <file>tests</file>
   <exclude-pattern>fpdf185/*</exclude-pattern>
   <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>*/estilo.css</exclude-pattern>
+  <exclude-pattern>*.css</exclude-pattern>
   <rule ref="PSR12"/>
   <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
   <rule ref="Generic.Files.LineLength">
